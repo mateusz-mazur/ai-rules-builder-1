@@ -97,3 +97,69 @@ Rules are defined as TypeScript objects and exported from category-specific file
 2. Use feature flags to control new functionality rollout
 3. Collections allow users to save and share rule combinations
 4. The MCP server enables programmatic access for AI assistants
+
+## Framework-Specific Guidelines
+
+### Astro
+- Use content collections with type safety for blog posts, documentation, etc.
+- Leverage Server Endpoints for API routes
+- Use POST, GET - uppercase format for endpoint handlers
+- Use `export const prerender = false` for API routes
+- Use zod for input validation in API routes
+- Implement or reuse middleware for request/response modification
+- Use image optimization with the Astro Image integration
+- Implement hybrid rendering with server-side rendering where needed
+- Use Astro.cookies for server-side cookie management
+- Leverage import.meta.env for environment variables
+- Always check if you're asked to create public or private pages (if public, update `src/middleware/index.ts`) to allow non-auth browsing
+
+### React Development
+- Use functional components with hooks instead of class components
+- Implement React.memo() for expensive components that render often with the same props
+- Utilize React.lazy() and Suspense for code-splitting and performance optimization
+- Use the useCallback hook for event handlers passed to child components to prevent unnecessary re-renders
+- Prefer useMemo for expensive calculations to avoid recomputation on every render
+- Prefer relying on Tailwind media queries instead of manual style recalculations
+- If there's a need to attach React components to Astro pages and make them browser-first (i.e. using window), use client:only directive to make the component exclusively run on the client
+- Use Tailwind responsive variants (sm:, md:, lg:, etc.) for adaptive designs - under no circumstances calculate this manually
+
+### Supabase Authentication
+- Use `@supabase/ssr` package (NOT auth-helpers)
+- Use ONLY `getAll` and `setAll` for cookie management
+- NEVER use individual `get`, `set`, or `remove` cookie methods
+- Implement proper session management with middleware based on JWT (Supabase Auth)
+- Never expose Supabase integration & keys in client-side components
+- Validate all user input server-side
+
+### Testing Guidelines
+
+#### Unit Testing (Vitest)
+- Leverage the `vi` object for test doubles - Use `vi.fn()` for function mocks, `vi.spyOn()` to monitor existing functions, and `vi.stubGlobal()` for global mocks
+- Master `vi.mock()` factory patterns - Place mock factory functions at the top level of your test file
+- Create setup files for reusable configuration in `tests/setup/`
+- Use inline snapshots for readable assertions with `expect(value).toMatchInlineSnapshot()`
+- Configure jsdom for DOM testing - Set `environment: 'jsdom'` in your configuration for frontend component tests
+- Follow 'Arrange', 'Act', 'Assert' approach to test structure for simplicity and readability
+
+#### E2E Testing (Playwright)
+- Initialize configuration only with Chromium/Desktop Chrome browser
+- Use browser contexts for isolating test environments
+- Implement the Page Object Model for maintainable tests in `e2e/page-objects/`
+- Use locators for resilient element selection
+- Leverage API testing for backend validation
+- Implement visual comparison with `expect(page).toHaveScreenshot()`
+- Use the codegen tool for test recording
+- Leverage trace viewer for debugging test failures
+- Follow 'Arrange', 'Act', 'Assert' approach to test structure for simplicity and readability
+
+## Contributing Rules
+
+When adding new AI rules to the system:
+
+1. Add rule definitions to appropriate files in `src/data/rules/` (frontend.ts, backend.ts, etc.)
+2. Add translations for new rules in `src/i18n/translations.ts` - **this is required** or unit tests will fail
+3. Follow the existing rule structure with proper categorization by Layer, Stack, and Library
+4. Use placeholder syntax `{{placeholder_text}}` for project-specific values
+5. Be specific and actionable - provide clear guidance that can be immediately applied
+6. Match the style and structure of existing rules
+7. Focus on best practices that represent industry standards
